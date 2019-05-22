@@ -22,3 +22,18 @@ app.post("/registerUser", (req, res) => {
         })
 });
 
+app.post("/insertQuestion", (req, res) => {
+    DButilsAzure.execQuery("INSERT INTO questions VALUES (" +
+        "'" + req.body.username + "', " +
+        "'" + req.body.question + "', " +
+        "'" + req.body.answer + "');"
+    )
+        .then(function (result) {
+            res.send(result)
+        })
+        .catch(function (err) {
+            console.log(err)
+            res.send(err)
+        })
+});
+
