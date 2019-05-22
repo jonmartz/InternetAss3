@@ -17,7 +17,7 @@ app.get('/select', function(req, res){
         res.send(result)
     })
     .catch(function(err){
-        console.log(err)
+        console.log(err);
         res.send(err)
     })
 });
