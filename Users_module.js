@@ -1,7 +1,7 @@
 import {Signer as jwt} from "node/base";
 
 var DButilsAzure = require('./DButils');
-
+var app = require('./app');
 
 app.post("/registerUser", (req, res) => {
     DButilsAzure.execQuery("INSERT INTO users VALUES (" +
@@ -66,6 +66,31 @@ app.post("/insertQuestion", (req, res) => {
             res.send(err)
         })
 });
+
+
+app.post('/restorePassword', async (req, res) => {
+    var message = "";
+    var user = await getUserForQuestion(req.body.username, req.body.question);
+    if (user !== null) {
+        if (user.answer === req.body.answer) {
+            var currUser = getUser(user.username);
+            message = currUser.password;
+            res.status(200).json({message});
+        } else {
+            message = "wrong answer";
+            res.status(403).json({ message });
+        }
+    }
+});
+
+function getUserForQuestion(username, question) {
+    return new Promise(async function (resolve, reject) {
+        var user = await DButilsAzure.execQuery('SELECT * FROM questions WHERE username=' + "'" + username + "'" + ' AND question=' + "'" + question + "'");
+        resolve(user[0]);
+        reject("user not found");
+    });
+}
+
 
 
 

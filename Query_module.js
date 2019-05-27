@@ -1,5 +1,5 @@
 var DButilsAzure = require('./DButils');
-
+var app = require('./app');
 
 Query_module.get('/select', function(req, res){
     DButilsAzure.execQuery("SELECT * FROM users")
