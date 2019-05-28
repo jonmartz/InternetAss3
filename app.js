@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+module.exports = app;
 // var DButilsAzure = require('./DButils');
 const bodyParser = require('body-parser');
 const Users_M = require('./Users_module');

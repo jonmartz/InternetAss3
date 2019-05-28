@@ -1,5 +1,5 @@
 var DButilsAzure = require('./DButils');
-
+var app = require('./app');
 
 app.post("/savePoi", (req, res) => {
     DButilsAzure.execQuery("INSERT INTO poisOfUser VALUES (" +
