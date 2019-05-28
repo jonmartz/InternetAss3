@@ -1,9 +1,9 @@
-import {Signer as jwt} from "node/base";
+const jwt = require("jsonwebtoken");
 
 var DButilsAzure = require('./DButils');
-var app = require('./app');
+var secret = "ourSecret";
 
-app.post("/registerUser", (req, res) => {
+var registerUser = function registerUser(req, res) {
     DButilsAzure.execQuery("INSERT INTO users VALUES (" +
         "'" + req.body.username + "', " +
         "'" + req.body.password + "', " +
@@ -22,27 +22,25 @@ app.post("/registerUser", (req, res) => {
             console.log(err)
             res.send(err)
         })
-});
+};
 
-app.post('/login' ,async (req,res)=> {
-    var message= "";
-    var user = await getUser(req.body.username);
+var login = async function login(req, res) {
+    const user = await getUser(req.body.username);
     if(user !== null) {
         if (user.password !== req.body.password) {
-            message = "wrong password";
+            const error = "wrong password";
+            res.status(403).json({error});
         } else {
             //create the token.
-            var token = jwt.sign(user, "samplesecret");
-            message = "successful login";
+            const token = jwt.sign(user, secret);
+            res.status(200).send(token);
         }
     }
-    if (token) {
-        res.status(200).json({message,token});
+    else {
+        const error = "wrong username";
+        res.status(403).json({error});
     }
-    else{
-        res.status(403).json({message});
-    }
-});
+};
 
 function getUser(username) {
     return new Promise(async function (resolve, reject) {
@@ -52,7 +50,20 @@ function getUser(username) {
     });
 }
 
-app.post("/insertQuestion", (req, res) => {
+var private = function private(req, res) {
+    const token = req.header("x-auth-token");
+    // no token
+    if (!token) res.status(401).send("Access denied. No token provided.");
+    // verify token
+    try {
+        req.decoded = jwt.verify(token, secret);
+        res.status(200).send({ result: "valid token" });
+    } catch (exception) {
+        res.status(400).send({ result: "invalid token" });
+    }
+};
+
+var insertQuestion = function insertQuestion(req, res) {
     DButilsAzure.execQuery("INSERT INTO questions VALUES (" +
         "'" + req.body.username + "', " +
         "'" + req.body.question + "', " +
@@ -65,10 +76,9 @@ app.post("/insertQuestion", (req, res) => {
             console.log(err)
             res.send(err)
         })
-});
+};
 
-
-app.post('/restorePassword', async (req, res) => {
+var restorePassword = async function restorePassword(req, res) {
     var message = "";
     var user = await getUserForQuestion(req.body.username, req.body.question);
     if (user !== null) {
@@ -81,7 +91,7 @@ app.post('/restorePassword', async (req, res) => {
             res.status(403).json({ message });
         }
     }
-});
+};
 
 function getUserForQuestion(username, question) {
     return new Promise(async function (resolve, reject) {
@@ -91,6 +101,6 @@ function getUserForQuestion(username, question) {
     });
 }
 
-
+module.exports = {registerUser, login, private, insertQuestion, restorePassword};
 
 
