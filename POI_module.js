@@ -28,9 +28,8 @@ var getPOI = async function getPOI(req, res) {
 };
 
 var GetRandomPopularPOI = function GetRandomPopularPOI(req, res) {
-    DButilsAzure.execQuery('SELECT * FROM pois ' +
-        'ORDER BY RAND() ' +
-        'LIMIT 3')
+    DButilsAzure.execQuery('SELECT TOP 3 * FROM pois' +
+    ' ORDER BY NEWID()')
         .then(function (result) {
             res.send(result);
         })
@@ -40,4 +39,26 @@ var GetRandomPopularPOI = function GetRandomPopularPOI(req, res) {
         })
 };
 
-module.exports = {poiFeedback, GetRandomPopularPOI, getPOI};
+var DetailedPOI = function DetailedPOI(req, res) {
+    DButilsAzure.execQuery('SELECT * FROM pois WHERE poiName=' + "'" + req.query.id + "'")
+        .then(function (result) {
+            res.send(result);
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.send(err);
+        })
+};
+
+var GetAllPOIs = function GetAllPOIs(req, res) {
+    DButilsAzure.execQuery('SELECT * FROM pois')
+        .then(function (result) {
+            res.send(result);
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.send(err);
+        })
+};
+
+module.exports = {poiFeedback, GetRandomPopularPOI, getPOI, DetailedPOI, GetAllPOIs};
