@@ -70,4 +70,15 @@ var PopularPOIFromTopic = function PopularPOIFromTopic(req, res) {
 };
 
 
+var UpdateFavoritesListOrder = function UpdateFavoritesListOrder(req, res) {
+    DButilsAzure.execQuery("UPDATE poisOfUser SET position='" + req.body.position +"' WHERE username='" + req.body.username + "' AND poiName='" + req.body.poiname + "'")
+        .then(function (result) {
+            res.send(result);
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.send(err);
+        })
+};
+
 module.exports = {savePoi, RemovePOI, GetFavoritesCount, GetAllFavoritesPOIs, PopularPOIFromTopic};
