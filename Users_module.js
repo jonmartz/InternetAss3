@@ -81,7 +81,7 @@ var insertQuestion = function insertQuestion(req, res) {
 var restorePassword = async function restorePassword(req, res) {
     var message = "";
     var user = await getUserForQuestion(req.body.username, req.body.question);
-    if (!user) {
+    if (user) {
         if (user.answer === req.body.answer) {
             var currUser = getUser(user.username);
             message = currUser.password;
