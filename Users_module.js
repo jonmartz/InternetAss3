@@ -33,20 +33,16 @@ var registerUser = function registerUser(req, res) {
 
 var login = async function login(req, res) {
     if (validator.validateInjection(req)) {
-        const user = await getUser(req.body.username);
-        if (user !== null) {
+    const user = await getUser(req.body.username);
+        if(user) {
             if (user.password !== req.body.password) {
                 const error = "wrong password";
-                res.status(403).json({ error });
+                res.status(403).json({error});
             } else {
                 //create the token.
                 const token = jwt.sign(user, secret);
-                res.status(200).send(token);
+                res.status(200).send({"token": token});
             }
-        }
-        else {
-            const error = "wrong username";
-            res.status(403).json({ error });
         }
     }
     else {
@@ -100,7 +96,7 @@ var insertQuestion = function insertQuestion(req, res) {
 var restorePassword = async function restorePassword(req, res) {
     var message = "";
     var user = await getUserForQuestion(req.body.username, req.body.question);
-    if (user !== null) {
+    if (user) {
         if (user.answer === req.body.answer) {
             var currUser = await getUser(user.username);
             message = currUser.password;
