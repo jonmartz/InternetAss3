@@ -26,14 +26,14 @@ var registerUser = function registerUser(req, res) {
 
 var login = async function login(req, res) {
     const user = await getUser(req.body.username);
-    if(user !== null) {
+    if(user) {
         if (user.password !== req.body.password) {
             const error = "wrong password";
             res.status(403).json({error});
         } else {
             //create the token.
             const token = jwt.sign(user, secret);
-            res.status(200).send(token);
+            res.status(200).send({"token": token});
         }
     }
     else {
@@ -81,7 +81,7 @@ var insertQuestion = function insertQuestion(req, res) {
 var restorePassword = async function restorePassword(req, res) {
     var message = "";
     var user = await getUserForQuestion(req.body.username, req.body.question);
-    if (user !== null) {
+    if (!user) {
         if (user.answer === req.body.answer) {
             var currUser = getUser(user.username);
             message = currUser.password;
