@@ -32,20 +32,5 @@ var validateEmail = function validateEmail(email) {
     return re.test(email);
 }
 
-var validateCountry = function validateCountry(country) {
-    var parser, xmlDoc;
-    parser = new DOMParser();
-    xmlDoc = parser.parseFromString(countries, "text/xml");
-    var arr = [];
-    for (var x in xmlDoc.getElementsByTagName("Name")) {
-        if (!isNaN(x)) {
-            var c = xmlDoc.getElementsByTagName("Name")[x].childNodes[0].nodeValue;
-            arr.push(c);
-        }
-    }
-    if (arr.includes(country))
-        return true;
-    return false;
-}
 
-module.exports = { validateInjection, validateName, validateEmail, validateCountry };
+module.exports = { validateInjection, validateName, validateEmail };

@@ -5,7 +5,7 @@ var secret = "ourSecret";
 var validator = require('./validator');
 
 var registerUser = function registerUser(req, res) {
-    if (validator.validateInjection(req) && validator.validateName(req.body.firstName) && validator.validateName(req.body.lastName) && validator.validateEmail(req.body.email) && validator.validateCountry(req.body.country)) {
+    if (validator.validateInjection(req) && validator.validateName(req.body.firstName) && validator.validateName(req.body.lastName) && validator.validateEmail(req.body.email) ) {
         DButilsAzure.execQuery("INSERT INTO users VALUES (" +
             "'" + req.body.username + "', " +
             "'" + req.body.password + "', " +
@@ -102,7 +102,7 @@ var restorePassword = async function restorePassword(req, res) {
     var user = await getUserForQuestion(req.body.username, req.body.question);
     if (user !== null) {
         if (user.answer === req.body.answer) {
-            var currUser = getUser(user.username);
+            var currUser = await getUser(user.username);
             message = currUser.password;
             res.status(200).json({ message });
         } else {

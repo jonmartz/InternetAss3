@@ -25,7 +25,7 @@ var poiFeedback = function poiFeedback(req, res) {
 
 var getPOI = async function getPOI(req, res) {
     if (validator.validateInjection(req)) {
-        var poi = new Promise(async function (resolve, reject) {
+        var poi = await new Promise(async function (resolve, reject) {
             var user = await DButilsAzure.execQuery('SELECT * FROM pois WHERE poiName=' + "'" + req.body.poiName + "'");
             resolve(user[0]);
             reject("user not found");
@@ -74,4 +74,28 @@ var GetAllPOIs = function GetAllPOIs(req, res) {
         })
 };
 
-module.exports = { poiFeedback, GetRandomPopularPOI, getPOI, DetailedPOI, GetAllPOIs };
+var AddPoint = function AddPoint(req, res) {
+    if (validator.validateInjection(req)) {
+        DButilsAzure.execQuery("INSERT INTO pois VALUES (" +
+            "'" + req.body.poiName + "', " +
+            "'" + req.body.pictureName + "', " +
+            "'" + req.body.category + "', " +
+            "'" + req.body.views + "', " +
+            "'" + req.body.description + "', " +
+            "'" + req.body.score + "');"
+        )
+            .then(function (result) {
+                res.send(result)
+            })
+            .catch(function (err) {
+                console.log(err)
+                res.send(err)
+            })
+    }
+    else {
+        const error = "bad input";
+        res.status(403).json({ error });
+    }
+};
+
+module.exports = { poiFeedback, GetRandomPopularPOI, getPOI, DetailedPOI, GetAllPOIs, AddPoint };

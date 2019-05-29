@@ -118,4 +118,6 @@ var UpdateFavoritesListOrder = function UpdateFavoritesListOrder(req, res) {
     }
 };
 
-module.exports = { savePoi, RemovePOI, GetFavoritesCount, GetAllFavoritesPOIs, PopularPOIFromTopic };
+
+
+module.exports = { savePoi, RemovePOI, GetFavoritesCount, GetAllFavoritesPOIs, PopularPOIFromTopic, UpdateFavoritesListOrder};
