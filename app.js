@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const Users_M = require('./Users_module');
 const POI_M = require('./POI_module');
 const Users_POI_M = require('./Users_POI_module');
-const Feedback_M = require('./Feedback_module');
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

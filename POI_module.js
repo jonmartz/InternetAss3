@@ -30,7 +30,7 @@ var getPOI = async function getPOI(req, res) {
             resolve(user[0]);
             reject("user not found");
         });
-        if (poi !== null) {
+        if (poi) {
             res.status(200).json({ poi });
         }
     }
