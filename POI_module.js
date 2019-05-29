@@ -1,35 +1,48 @@
 var DButilsAzure = require('./DButils');
+var validator = require('./validator');
 
 var poiFeedback = function poiFeedback(req, res) {
-    DButilsAzure.execQuery("INSERT INTO reviews VALUES (" +
-        "'" + req.body.username + "', " +
-        "'" + req.body.poiName + "', " +
-        "'" + req.body.score + "', " +
-        "'" + req.body.text + "');"
-    )
-        .then(function (result) {
-            res.send(result)
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.send(err)
-        })
+    if (validator.validateInjection(req)) {
+        DButilsAzure.execQuery("INSERT INTO reviews VALUES (" +
+            "'" + req.body.username + "', " +
+            "'" + req.body.poiName + "', " +
+            "'" + req.body.score + "', " +
+            "'" + req.body.text + "');"
+        )
+            .then(function (result) {
+                res.send(result)
+            })
+            .catch(function (err) {
+                console.log(err);
+                res.send(err)
+            })
+    }
+    else {
+        const error = "bad input";
+        res.status(403).json({ error });
+    }
 };
 
 var getPOI = async function getPOI(req, res) {
-    var poi = new Promise(async function (resolve, reject) {
-        var user = await DButilsAzure.execQuery('SELECT * FROM pois WHERE poiName=' + "'" + req.body.poiName + "'");
-        resolve(user[0]);
-        reject("user not found");
-    });
-    if (poi !== null) {
-        res.status(200).json({ poi });
+    if (validator.validateInjection(req)) {
+        var poi = new Promise(async function (resolve, reject) {
+            var user = await DButilsAzure.execQuery('SELECT * FROM pois WHERE poiName=' + "'" + req.body.poiName + "'");
+            resolve(user[0]);
+            reject("user not found");
+        });
+        if (poi !== null) {
+            res.status(200).json({ poi });
+        }
+    }
+    else {
+        const error = "bad input";
+        res.status(403).json({ error });
     }
 };
 
 var GetRandomPopularPOI = function GetRandomPopularPOI(req, res) {
     DButilsAzure.execQuery('SELECT TOP 3 * FROM pois' +
-    ' ORDER BY NEWID()')
+        ' ORDER BY NEWID()')
         .then(function (result) {
             res.send(result);
         })
@@ -61,4 +74,4 @@ var GetAllPOIs = function GetAllPOIs(req, res) {
         })
 };
 
-module.exports = {poiFeedback, GetRandomPopularPOI, getPOI, DetailedPOI, GetAllPOIs};
+module.exports = { poiFeedback, GetRandomPopularPOI, getPOI, DetailedPOI, GetAllPOIs };

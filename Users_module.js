@@ -2,49 +2,62 @@ const jwt = require("jsonwebtoken");
 
 var DButilsAzure = require('./DButils');
 var secret = "ourSecret";
+var validator = require('./validator');
 
 var registerUser = function registerUser(req, res) {
-    DButilsAzure.execQuery("INSERT INTO users VALUES (" +
-        "'" + req.body.username + "', " +
-        "'" + req.body.password + "', " +
-        "'" + req.body.firstName + "', " +
-        "'" + req.body.lastName + "', " +
-        "'" + req.body.city + "', " +
-        "'" + req.body.country + "', " +
-        "'" + req.body.email + "', " +
-        "'" + req.body.category1 + "', " +
-        "'" + req.body.category2 + "');"
-    )
-        .then(function(result){
-            res.send(result)
-        })
-        .catch(function(err){
-            console.log(err)
-            res.send(err)
-        })
+    if (validator.validateInjection(req) && validator.validateName(req.body.firstName) && validator.validateName(req.body.lastName) && validator.validateEmail(req.body.email) && validator.validateCountry(req.body.country)) {
+        DButilsAzure.execQuery("INSERT INTO users VALUES (" +
+            "'" + req.body.username + "', " +
+            "'" + req.body.password + "', " +
+            "'" + req.body.firstName + "', " +
+            "'" + req.body.lastName + "', " +
+            "'" + req.body.city + "', " +
+            "'" + req.body.country + "', " +
+            "'" + req.body.email + "', " +
+            "'" + req.body.category1 + "', " +
+            "'" + req.body.category2 + "');"
+        )
+            .then(function (result) {
+                res.send(result)
+            })
+            .catch(function (err) {
+                console.log(err)
+                res.send(err)
+            })
+    }
+    else {
+        const error = "bad input";
+        res.status(403).json({ error });
+    }
 };
 
 var login = async function login(req, res) {
-    const user = await getUser(req.body.username);
-    if(user !== null) {
-        if (user.password !== req.body.password) {
-            const error = "wrong password";
-            res.status(403).json({error});
-        } else {
-            //create the token.
-            const token = jwt.sign(user, secret);
-            res.status(200).send(token);
+    if (validator.validateInjection(req)) {
+        const user = await getUser(req.body.username);
+        if (user !== null) {
+            if (user.password !== req.body.password) {
+                const error = "wrong password";
+                res.status(403).json({ error });
+            } else {
+                //create the token.
+                const token = jwt.sign(user, secret);
+                res.status(200).send(token);
+            }
+        }
+        else {
+            const error = "wrong username";
+            res.status(403).json({ error });
         }
     }
     else {
-        const error = "wrong username";
-        res.status(403).json({error});
+        const error = "bad input";
+        res.status(403).json({ error });
     }
 };
 
 function getUser(username) {
     return new Promise(async function (resolve, reject) {
-        var user = await DButilsAzure.execQuery('SELECT * FROM users WHERE username='+"'" + username + "'");
+        var user = await DButilsAzure.execQuery('SELECT * FROM users WHERE username=' + "'" + username + "'");
         resolve(user[0]);
         reject("user not found");
     });
@@ -64,18 +77,24 @@ var private = function private(req, res) {
 };
 
 var insertQuestion = function insertQuestion(req, res) {
-    DButilsAzure.execQuery("INSERT INTO questions VALUES (" +
-        "'" + req.body.username + "', " +
-        "'" + req.body.question + "', " +
-        "'" + req.body.answer + "');"
-    )
-        .then(function (result) {
-            res.send(result)
-        })
-        .catch(function (err) {
-            console.log(err)
-            res.send(err)
-        })
+    if (validator.validateInjection(req)) {
+        DButilsAzure.execQuery("INSERT INTO questions VALUES (" +
+            "'" + req.body.username + "', " +
+            "'" + req.body.question + "', " +
+            "'" + req.body.answer + "');"
+        )
+            .then(function (result) {
+                res.send(result)
+            })
+            .catch(function (err) {
+                console.log(err)
+                res.send(err)
+            })
+    }
+    else {
+        const error = "bad input";
+        res.status(403).json({ error });
+    }
 };
 
 var restorePassword = async function restorePassword(req, res) {
@@ -85,7 +104,7 @@ var restorePassword = async function restorePassword(req, res) {
         if (user.answer === req.body.answer) {
             var currUser = getUser(user.username);
             message = currUser.password;
-            res.status(200).json({message});
+            res.status(200).json({ message });
         } else {
             message = "wrong answer";
             res.status(403).json({ message });
@@ -101,6 +120,6 @@ function getUserForQuestion(username, question) {
     });
 }
 
-module.exports = {registerUser, login, private, insertQuestion, restorePassword};
+module.exports = { registerUser, login, private, insertQuestion, restorePassword };
 
 
